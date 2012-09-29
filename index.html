@@ -1,0 +1,306 @@
+﻿<!DOCTYPE html>
+<html>
+<!--public
+Created on 9/8/12
+@ UIUC for IEEE Hackathon
+By Erik Luo
+-->
+	<head>
+	  <style>
+		img{ height: 100px; float: left; }
+		td{
+			font-family:"Myriad Web Pro";
+			font-size:30px;
+			color:white;
+			width: 165px;
+			height: 150px;
+			vertical-align:top;
+			line-height: 0.7em;
+			background-color:Gray;
+			background-repeat: no-repeat;
+			-webkit-background-size: cover;
+			-moz-background-size: cover;
+			-o-background-size: cover;
+			background-size: cover;
+		}
+		div{
+			font-family:Segoe UI Light;
+		}
+		li{
+			font-size:13px;
+			font-family:Segoe UI;
+		}
+		</style>
+		<script src="http://code.jquery.com/jquery-1.5.js"></script>
+		<!--Filepicker.io-->
+		<script src="https://api.filepicker.io/v0/filepicker.js"></script>
+		<script>filepicker.setKey('A8fbV-9XhTemHFA8QiXiRz');</script>
+	</head>
+	<body style="margin:0">
+		<script>
+			function colorToggle(obj){
+				if ($('#'+obj).css('background-color') == "rgb(204, 255, 51)") $('#'+obj).css('background-color','#FFCC00');
+				else $('#'+obj).css('background-color','#CCFF33');
+				
+				if ($('#'+obj).text() == "spacebar") $('#'+obj).text("enter");
+				else if ($('#'+obj).text() == "enter") $('#'+obj).text("spacebar");
+				
+				if ($('#'+obj).text() == "gray") $('#'+obj).text("random");
+				else if ($('#'+obj).text() == "random") $('#'+obj).text("gray");
+				
+				if ($('#'+obj).text() == "autoload") $('#'+obj).text("progress");
+				else if ($('#'+obj).text() == "progress") $('#'+obj).text("autoload");
+			}
+		</script>
+		<div id="images"></div>
+		<div style="font-family:Segoe UI Light; font-size:21px">
+			<div id="searcy2" style="width:113px; height:37px; text-align:center; vertical-align:middle; background-color:#CCFF33; position:absolute; left:8px" onclick="colorToggle('searcy2')">spacebar</div>
+			<div id="option2" style="width:113px; height:37px; text-align:center; vertical-align:middle; background-color:#CCFF33; position:absolute; left:135px" onclick="colorToggle('option2')">gray</div>
+			<div id="load2" style="width:113px; height:37px; text-align:center; vertical-align:middle; background-color:#CCFF33; position:absolute; left:263px" onclick="colorToggle('load2')">autoload</div>
+			<div style="width:113px; height:37px; text-align:center; vertical-align:middle; background-color:#CCFF33; position:absolute; left:391px" onClick="pickFiles()">upload text</div>
+			<div style="width:113px; height:37px; text-align:center; vertical-align:middle; background-color:#CCFF33; position:absolute; left:518px" onclick = "listen()">play all</div>
+			<div style="width:113px; height:37px; text-align:center; vertical-align:middle; background-color:#CCFF33; position:relative; left:645px" onclick = "about()">about</div>
+			<div style="position:absolute; right:120px; top:-5px; font-size:35px; font-family:Segoe UI Semibold">Aspect</div>
+			<div style="position:absolute; right:25px; top:10px; font-size:13px; z-index:-1">a  &nbsp;&nbsp;v i s u a l<br>l a n g u a g e<br>e n g i n e</div>
+		</div>
+		
+		<table id="searcy" cellspacing="12" cellpadding="8" style="margin-top:23px">
+			<tr style="padding:8px">
+				<td id="1s1"  contentEditable="true">
+					Start
+				</td>
+			</tr>
+		</table>
+		
+		<div id="lightbox" style="z-index:5; background-color:gray; opacity:1; width:47%; height:450px; top:11%; position:absolute; border-radius:15px; -moz-border-radius:15px; padding:30px; font-size:50px; color:white">
+			About<br>
+			<div id="closeAbout" style="position:absolute; top:25px; right:30px; font-size:25px" onclick="closeAbout()">close</div>
+			<p style="font-size:16px; line-height:30px; font-family:Segoe UI">
+				Play around!  Try finding places and people or entering in essays and poems.*<br><br>
+				This visual language engine was developed for the September 2012 IEEE Hackathon at the University of Illinois at Urbana-Champaign by Erik Luo, a freshman in CS; intensive beta testing was done by Daniel Park, a freshman in MechE.<br><br>
+				Credit goes to the developers of:
+				<ul style="margin:0 auto">
+					<li><a href="http://jquery.com" style="color:orange">jQuery</a> for their jamazing Javascript framework</li>
+					<li><a href="http://filepicker.io" style="color:#99CCFF">filepicker.io</a> for their fantastic file plugin</li>
+					<li><a href="http://flickr.com" style="color:pink">flickr</a> for their faboulous images retrieved through their public API</li>
+					<li><a href="http://translate.google.com" style="color:#CCFF33">Google Translate</a> for their glorious text-to-speech features</li>
+				</ul>
+				<p style="font-size:13px"><br>*The images retrieved are from flickr's public collections and may not be suitable for all ages.  Please take caution.  No images represent any sentiments by the aforementioned people and entities.</p>
+			</p>
+		</div>
+		<div id="shadow" style="z-index:4; background-color:black; opacity:0.5; width:100%; height:100%; top:0; position:absolute; margin:0 auto"></div>
+	
+		  
+	  <script>
+		var current;	//current box selected
+		$("#lightbox").css("margin-left",(document.width/4));
+		colorToggle('load2');	//toggles the autoload --> progress
+		$("#1s1").hide();	//animate the first box when launched
+		$("#1s1").fadeIn();
+		$("#1s1").focus();
+		
+		//hides the about stuff
+		$("#lightbox").hide();
+		$("#shadow").hide();
+		
+		//Shows the about dialog
+		function about(){
+			$("#shadow").fadeIn();
+			$("#lightbox").fadeIn();
+		}
+		
+		//and closes it
+		function closeAbout(){
+			$("#shadow").fadeOut();
+			$("#lightbox").fadeOut();
+		}
+		
+		//Plays all the text
+		function listen(){
+			var url = "http://translate.google.com/translate_tts?ie=UTF-8&q="
+			var words = $('#searcy').text();
+			words = $.trim(words);
+			var newWords = "";
+			for (c = 0; c<words.length; c++){
+				if (!(words[c] ==- " ")) newWords += words[c];
+				else newWords += "%20"
+			}
+			url += newWords;
+			/*
+			for (word in words.split(" ")){
+				alert(word);
+				url += word;
+			}*/
+			url += "&tl=en&total=1&idx=0&textlen=23&prev=input";
+			var snd = new Audio(url);
+			snd.play();
+		}
+		
+		
+		var addNew = function(){
+			var rows = document.getElementById("searcy").rows.length;
+			var cols = document.getElementById("searcy").rows[rows-1].childElementCount;
+			var iddy = "";
+			
+			//if the last row's # of boxes is > n, add a new row
+			var newBox = document.createElement('td');
+			newBox.setAttribute("contentEditable", true);			
+			
+			//max number of boxes that fit on the screen
+			//var max = Math.ceil((window.innerWidth/window.outerWidth)*window.outerWidth/($('#searcy').children().children().children()[0].clientWidth+20));
+			var max = Math.ceil((window.innerWidth/window.outerWidth)*window.outerWidth/189);
+			//if (cols >= 7){
+			if (cols >= max){
+				var newRow = document.getElementById("searcy").insertRow(-1);
+				newBox.setAttribute("id", rows+1 + "s1");				
+	
+				newRow.appendChild(newBox);
+				iddy = (rows+1)+"s1";
+				$("#"+iddy).hide();
+				$("#"+iddy).css("background-color","gray");	//tex
+				$("#"+iddy).fadeIn();
+			}else{				
+				newBox.setAttribute("id", rows + "s" + (cols+1));
+				newBox.setAttribute("contentEditable", true);
+				
+				document.getElementById("searcy").rows[rows-1].appendChild(newBox);
+				iddy = rows+"s"+(cols+1);
+				$("#"+iddy).hide();
+				$("#"+iddy).css("background-color","gray");	//test
+				$("#"+iddy).fadeIn();
+			}
+			
+			newBox.focus();
+			
+			//Makes the new box responsive
+			document.getElementById(iddy).addEventListener('keyup', function () {
+				if ($("#option2").text() == "random" || !($('#'+iddy).text() ==- " ")){	//lucky guess  idk what ==- does, but it seems to test if the left side is equal to some form of the right
+					var q = document.getElementById(iddy).innerText;
+					$.getJSON("http://api.flickr.com/services/feeds/photos_public.gne?jsoncallback=?",
+					{
+						tags: q, tagmode: "any", format: "json"
+					},
+					function(data) {
+						$.each(data.items, function(i,item){
+						document.getElementById("images").innerHTML = "";
+						var poster = "url(" + item.media.m + ")"
+						$("#"+iddy).css("backgroundImage", poster);
+						if ( i == 0 ) return false;
+						});
+					});
+					
+					$("#"+iddy).focus(function(){
+						current = this;
+					});
+				} else if ($("#option2").text() == "gray" && ($('#'+iddy).text() ==- " "))
+					$("#"+iddy).css("backgroundImage",'None');
+			}, false);
+			return iddy
+		}
+		
+		<!--Kepress to detect space and enter events-->
+		document.onkeyup = function(e) {
+			e = e || window.event;  
+			var charCode = (typeof e.which == "undefined") ? e.keyCode : e.which;
+			var flow = $('#searcy2').text();			
+			
+			if (charCode) {
+				if ((charCode == 32 && flow == "spacebar") || (charCode == 13 && flow == "enter")) {   //Space is triggered, now adding a new box, space=32 when love, enter=13 when happy
+					addNew();          
+				}
+			}
+		};
+	
+		<!--Gets image from flicr for first box-->
+		document.getElementById("1s1").addEventListener('keyup', function () {    
+			var q = document.getElementById("1s1").innerText;
+			if ($("#option2").text() == "random" || !($('#1s1').text() == "\n" || $('#1s1').text() == "")){
+				$.getJSON("http://api.flickr.com/services/feeds/photos_public.gne?jsoncallback=?",
+				{
+					tags: q, tagmode: "any", format: "json"
+				},
+				function(data) {
+					$.each(data.items, function(i,item){
+						document.getElementById("images").innerHTML = "";
+						var poster = "url(" + item.media.m + ")"
+						$("#1s1").css("backgroundImage", poster);
+							if ( i == 0 ) return false;
+					});
+				});        	
+			}else if ($("#option2").text() == "gray" && ($('#1s1').text() ==- " "))
+					$("#1s1").css("backgroundImage",'None');
+		}, false);
+				
+		
+		<!--Uploads your document and parses it-->
+		function pickFiles(){
+			var results;
+			//filepicker.getFile('text/*', function(url){
+			filepicker.getFile('text/*', function(url){
+				filepicker.getContents(url, function(data){
+					//$('#s1').text(data);
+					results = data;
+					var boxes = new Array();	//holds the id's of each newly added box
+					var ids = new Array();
+					for (word in data.split(' ')){
+						boxes.push(data.split(' ')[word]);
+					}
+					
+					var rows = $("#searcy").children().children().length;
+					var initialN = rows*$("#searcy").children().children()[rows-1].childElementCount;
+					var finalN = initialN + 0;
+					//number of boxes before
+					//get image for it if autoload is on
+					if ($('#load2').text() == "autoload"){
+						//AUTOLOAD CODE					replace getJSON with ajax(), and set the asynchronous option to false
+						
+						for (i=0; i<boxes.length; i++){
+							var q = boxes[i];
+							$.getJSON("http://api.flickr.com/services/feeds/photos_public.gne?jsoncallback=?",
+							{
+								tags: q, tagmode: "any", format: "json"
+							},
+							function(data) {
+								alert("jo");
+								$.each(data.items, function(i,item){
+								document.getElementById("images").innerHTML = "";
+								var poster = "url(" + item.media.m + ")";
+								//posters.push(poster);
+								
+								var box = addNew();
+								ids.push(box)
+								var newBox = $('#' + box);
+								newBox.text(q);
+								alert("hi");
+								$(newBox).css("backgroundImage", poster);
+								
+								//$("#"+boxes[i]).css("backgroundImage", poster);
+								if ( i == 0 ) return false;
+								});
+							});
+						}
+						
+						while (finalN-initialN < boxes.length){
+							var rows = $("#searcy").children().children().length;
+							var finalN = rows*$("#searcy").children().children()[rows-1].childElementCount;
+						}
+						for (i=0; i<ids.length; i++){
+							$("#" + ids[i]).text(boxes[i]);
+						}
+					}else{
+						for (i=0; i<boxes.length; i++){
+							var box = addNew();
+							var newBox = $('#' + box);
+							newBox.text(boxes[i]);
+						}
+					}
+				});
+			});
+			$('#1s1').focus();
+			return results;
+		}
+	</script>
+	  
+
+	</body>
+</html>
